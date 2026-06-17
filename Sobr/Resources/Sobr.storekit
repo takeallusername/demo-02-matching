@@ -1,0 +1,110 @@
+{
+  "identifier" : "5B3A1C20",
+  "nonRenewingSubscriptions" : [],
+  "products" : [
+    {
+      "displayPrice" : "59.99",
+      "familyShareable" : false,
+      "internalID" : "10000000001",
+      "localizations" : [
+        {
+          "description" : "Lifetime access to Sobr. Pay once, yours forever.",
+          "displayName" : "Sobr Lifetime",
+          "locale" : "en_US"
+        }
+      ],
+      "productID" : "com.sobr.app.lifetime",
+      "referenceName" : "Sobr Lifetime",
+      "type" : "NonConsumable"
+    },
+    {
+      "displayPrice" : "49.99",
+      "familyShareable" : false,
+      "internalID" : "10000000002",
+      "localizations" : [
+        {
+          "description" : "Lifetime access to Sobr — special exit offer.",
+          "displayName" : "Sobr Lifetime (Offer)",
+          "locale" : "en_US"
+        }
+      ],
+      "productID" : "com.sobr.app.lifetime.exit",
+      "referenceName" : "Sobr Lifetime Exit Offer",
+      "type" : "NonConsumable"
+    },
+    {
+      "displayPrice" : "11.99",
+      "familyShareable" : false,
+      "internalID" : "10000000003",
+      "localizations" : [
+        {
+          "description" : "Lifetime access to Sobr — final offer.",
+          "displayName" : "Sobr Lifetime (Final Offer)",
+          "locale" : "en_US"
+        }
+      ],
+      "productID" : "com.sobr.app.lifetime.final",
+      "referenceName" : "Sobr Lifetime Final Offer",
+      "type" : "NonConsumable"
+    }
+  ],
+  "settings" : {
+    "_failTransactionsEnabled" : false,
+    "_storeKitErrors" : []
+  },
+  "subscriptionGroups" : [
+    {
+      "id" : "21345678",
+      "localizations" : [],
+      "name" : "Sobr Premium",
+      "subscriptions" : [
+        {
+          "adHocOffers" : [],
+          "codeOffers" : [],
+          "displayPrice" : "12.99",
+          "familyShareable" : false,
+          "groupNumber" : 1,
+          "internalID" : "20000000001",
+          "introductoryOffer" : null,
+          "localizations" : [
+            {
+              "description" : "Sobr Premium, billed monthly.",
+              "displayName" : "Monthly",
+              "locale" : "en_US"
+            }
+          ],
+          "productID" : "com.sobr.app.monthly",
+          "recurringSubscriptionPeriod" : "P1M",
+          "referenceName" : "Sobr Monthly",
+          "subscriptionGroupID" : "21345678",
+          "type" : "RecurringSubscription"
+        },
+        {
+          "adHocOffers" : [],
+          "codeOffers" : [],
+          "displayPrice" : "44.99",
+          "familyShareable" : false,
+          "groupNumber" : 1,
+          "internalID" : "20000000002",
+          "introductoryOffer" : null,
+          "localizations" : [
+            {
+              "description" : "Sobr Premium, billed yearly.",
+              "displayName" : "Yearly",
+              "locale" : "en_US"
+            }
+          ],
+          "productID" : "com.sobr.app.yearly",
+          "recurringSubscriptionPeriod" : "P1Y",
+          "referenceName" : "Sobr Yearly",
+          "subscriptionGroupID" : "21345678",
+          "type" : "RecurringSubscription"
+        }
+      ]
+    }
+  ],
+  "version" : {
+    "major" : 3,
+    "minor" : 0
+  }
+}
