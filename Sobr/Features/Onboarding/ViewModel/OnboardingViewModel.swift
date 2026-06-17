@@ -106,22 +106,20 @@ final class OnboardingViewModel {
 
     // MARK: - Completion
 
-    /// Build the final profile from everything collected and hand it to the app.
-    /// `premium` reflects whether the user converted on the paywall.
-    func finish(premium: Bool, into appState: AppState) {
-        let now = Date.now
-        let profile = UserProfile(
+    /// Assemble the profile draft from everything collected during onboarding.
+    /// The user isn't premium yet — that's decided at the paywall.
+    func buildDraft() -> UserProfile {
+        UserProfile(
             name: name.trimmingCharacters(in: .whitespaces),
             ageRange: ageRange,
             gender: genderFromAnswer(),
             dependenceScore: dependenceScore,
             selectedSymptomIDs: selectedSymptomIDs,
             selectedGoalIDs: selectedGoalIDs,
-            soberSince: now,
+            soberSince: .now,
             targetDate: projectedDate,
-            isPremium: premium
+            isPremium: false
         )
-        appState.completeOnboarding(with: profile)
     }
 
     private func genderFromAnswer() -> Gender? {

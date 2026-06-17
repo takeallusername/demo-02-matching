@@ -30,22 +30,6 @@ struct OnboardingProgressBar: View {
                 }
             }
             .frame(height: 8)
-
-            LocalePill()
         }
-    }
-}
-
-/// A small static "EN" locale pill. Decorative — matches the reference UI.
-private struct LocalePill: View {
-    var body: some View {
-        HStack(spacing: 4) {
-            Text("🇺🇸")
-            Text("EN").font(SobrFont.caption(.bold))
-        }
-        .foregroundStyle(SobrColor.textSecondary)
-        .padding(.horizontal, 10)
-        .padding(.vertical, 8)
-        .background(SobrColor.surface, in: Capsule())
     }
 }

@@ -41,11 +41,10 @@ struct OnboardingContainerView: View {
         case .testimonials:     TestimonialsView()
         case .pathToFreedom:    PathToFreedomView()
         case .goals:            GoalsView()
-        case .rating:           RatingView()
         case .notifications:    NotificationsView()
         case .planReveal:       PlanRevealView()
-        case .paywall:          PaywallView(onFinish: { premium in
-                                    vm.finish(premium: premium, into: appState)
+        case .rating:           RatingView(onContinue: {
+                                    appState.beginCheckout(with: vm.buildDraft())
                                 })
         }
     }

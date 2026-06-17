@@ -22,8 +22,27 @@ focused daily app:
    → relationships → rebound anxiety → recovery), each beat in its own color
 6. **Welcome to Sobr** — a 6-beat product tour
 7. Anonymous testimonials → a recovery graph (**Path to Freedom**)
-8. **Choose your goals** → rating → notifications
-9. A personalised **plan reveal** → a **paywall** with two plans
+8. **Choose your goals** → notifications → a personalised **plan reveal**
+9. A **rating** prompt (placed immediately before checkout) → a **hard paywall**
+
+### Pricing & the hard paywall
+
+The paywall is the only door into the app — there is no free entry. Plans:
+
+| Plan | Price | Off vs monthly |
+|---|---|---|
+| Monthly | $12.99 / mo | — (baseline) |
+| Yearly | $44.99 / yr | ~71% |
+| Lifetime | $59.99 once | ~62% |
+
+Every discount is computed against a **full year of monthly billing**
+($12.99 × 12), so the user always sees an honest "% off vs monthly".
+
+**Downsell ladder** (persisted across launches):
+- Try to leave without buying → **Lifetime $49.99** (exit offer)
+- Still not converted a **day later** → **Lifetime $11.99** (final offer)
+
+Billing is **simulated** here (no StoreKit yet); converting just unlocks the app.
 
 **Main app** (4 tabs, no AI, no community — by design)
 - **Home** — a live sobriety counter, a growth metaphor (seed → tree), an

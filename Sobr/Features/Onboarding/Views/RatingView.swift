@@ -5,6 +5,8 @@ import SwiftUI
 /// the reference flow's placement and let the user continue either way.
 struct RatingView: View {
     @Environment(OnboardingViewModel.self) private var vm
+    /// Called when the user moves on from rating — straight into checkout.
+    let onContinue: () -> Void
 
     var body: some View {
         ZStack {
@@ -13,7 +15,7 @@ struct RatingView: View {
             VStack(spacing: SobrSpacing.lg) {
                 BackBar { vm.back() }
 
-                Spacer()
+                Spacer(minLength: 0)
 
                 Text("Give us a rating")
                     .font(SobrFont.hero())
@@ -36,8 +38,8 @@ struct RatingView: View {
 
                 Spacer()
 
-                PrimaryButton(title: "Next") { vm.advance() }
-                TextLinkButton(title: "Maybe later") { vm.advance() }
+                PrimaryButton(title: "Continue") { onContinue() }
+                TextLinkButton(title: "Maybe later") { onContinue() }
                     .padding(.bottom, SobrSpacing.sm)
             }
             .padding(.horizontal, SobrSpacing.screenMargin)
