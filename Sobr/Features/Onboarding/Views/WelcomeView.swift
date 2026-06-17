@@ -26,7 +26,7 @@ struct WelcomeView: View {
                     .font(SobrFont.headline(.regular))
                     .foregroundStyle(SobrColor.textSecondary)
 
-                StarRatingFlourish()
+                StarRow(size: 18)
                     .padding(.top, SobrSpacing.sm)
 
                 Spacer()
@@ -47,19 +47,6 @@ struct WelcomeView: View {
                     .padding(.bottom, SobrSpacing.xs)
             }
             .padding(.horizontal, SobrSpacing.screenMargin)
-        }
-    }
-}
-
-/// Five accent stars used as a small trust flourish.
-private struct StarRatingFlourish: View {
-    var body: some View {
-        HStack(spacing: 6) {
-            ForEach(0..<5, id: \.self) { _ in
-                Image(systemName: "star.fill")
-                    .font(.system(size: 18))
-                    .foregroundStyle(SobrColor.caution)
-            }
         }
     }
 }

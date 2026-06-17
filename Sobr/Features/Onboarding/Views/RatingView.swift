@@ -22,13 +22,7 @@ struct RatingView: View {
                     .foregroundStyle(SobrColor.textPrimary)
                     .multilineTextAlignment(.center)
 
-                HStack(spacing: 8) {
-                    ForEach(0..<5, id: \.self) { _ in
-                        Image(systemName: "star.fill")
-                            .font(.system(size: 30))
-                            .foregroundStyle(SobrColor.caution)
-                    }
-                }
+                StarRow(size: 30)
 
                 Text("Sobr was built to help people take back control from alcohol. Your support helps someone else find it.")
                     .font(SobrFont.body())

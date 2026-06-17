@@ -43,33 +43,20 @@ struct SymptomsView: View {
                     }
 
                     // Spacer so content clears the pinned CTA.
-                    Color.clear.frame(height: 96)
+                    Color.clear.frame(height: SobrSpacing.scrollFooterClearance)
                 }
                 .padding(.horizontal, SobrSpacing.screenMargin)
                 .padding(.top, SobrSpacing.xs)
             }
 
-            PrimaryButton(title: "Build my plan") { vm.advance() }
-                .padding(.horizontal, SobrSpacing.screenMargin)
-                .padding(.bottom, SobrSpacing.sm)
-                .background(
-                    LinearGradient(colors: [.clear, SobrColor.background],
-                                   startPoint: .top, endPoint: .bottom)
-                        .frame(height: 140)
-                        .allowsHitTesting(false),
-                    alignment: .bottom
-                )
+            FadingFooter {
+                PrimaryButton(title: "Build my plan") { vm.advance() }
+            }
         }
     }
 
     private func toggle(_ id: String) {
-        withAnimation(.spring(response: 0.3)) {
-            if vm.selectedSymptomIDs.contains(id) {
-                vm.selectedSymptomIDs.remove(id)
-            } else {
-                vm.selectedSymptomIDs.insert(id)
-            }
-        }
+        withAnimation(.spring(response: 0.3)) { vm.selectedSymptomIDs.toggle(id) }
     }
 }
 

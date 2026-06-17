@@ -95,24 +95,6 @@ struct ProgressTabView: View {
     }
 }
 
-/// A labelled section header reused across the main app.
-struct SectionHeader: View {
-    let title: String
-    var subtitle: String? = nil
-    var body: some View {
-        VStack(alignment: .leading, spacing: 2) {
-            Text(title)
-                .font(SobrFont.headline(.bold))
-                .foregroundStyle(SobrColor.textPrimary)
-            if let subtitle {
-                Text(subtitle)
-                    .font(SobrFont.footnote())
-                    .foregroundStyle(SobrColor.textSecondary)
-            }
-        }
-    }
-}
-
 private struct MilestoneBadge: View {
     let milestone: Milestone
     let isUnlocked: Bool

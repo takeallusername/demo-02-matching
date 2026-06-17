@@ -14,6 +14,10 @@ enum SobrSpacing {
 
     /// Standard horizontal screen inset.
     static let screenMargin: CGFloat = 24
+
+    /// Bottom clearance added inside a scroll view so its last content clears a
+    /// pinned `FadingFooter`.
+    static let scrollFooterClearance: CGFloat = 96
 }
 
 enum SobrRadius {

@@ -50,21 +50,15 @@ struct PathToFreedomView: View {
                             .fixedSize(horizontal: false, vertical: true)
                     }
 
-                    Color.clear.frame(height: 96)
+                    Color.clear.frame(height: SobrSpacing.scrollFooterClearance)
                 }
                 .padding(.horizontal, SobrSpacing.screenMargin)
                 .padding(.top, SobrSpacing.xs)
             }
 
-            PrimaryButton(title: "Continue", gradient: SobrGradient.recovery) { vm.advance() }
-                .padding(.horizontal, SobrSpacing.screenMargin)
-                .padding(.bottom, SobrSpacing.sm)
-                .background(
-                    LinearGradient(colors: [.clear, SobrColor.background],
-                                   startPoint: .top, endPoint: .bottom)
-                        .frame(height: 140).allowsHitTesting(false),
-                    alignment: .bottom
-                )
+            FadingFooter {
+                PrimaryButton(title: "Continue", gradient: SobrGradient.recovery) { vm.advance() }
+            }
         }
         .onAppear {
             withAnimation(.easeInOut(duration: 1.1).delay(0.2)) { animate = true }

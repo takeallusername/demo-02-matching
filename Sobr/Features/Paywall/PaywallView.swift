@@ -83,7 +83,7 @@ struct PaywallView: View {
                 let success = try await store.purchase(selectedPlan)
                 if success {
                     HapticsManager.shared.success()
-                    appState.completePurchase(plan: selectedPlan)
+                    appState.grantPremiumAccess()
                 }
             } catch {
                 HapticsManager.shared.warning()
@@ -97,7 +97,7 @@ struct PaywallView: View {
             do {
                 try await store.restore()
                 if store.hasEntitlement {
-                    appState.unlockFromEntitlement()
+                    appState.grantPremiumAccess()
                 } else {
                     errorMessage = "No previous purchases were found on this Apple ID."
                 }
@@ -239,39 +239,33 @@ struct PaywallView: View {
     }
 
     private var footer: some View {
-        VStack(spacing: SobrSpacing.xs) {
-            Button(action: buy) {
-                Group {
-                    if isPurchasing {
-                        ProgressView().tint(SobrColor.textOnAccent)
-                    } else {
-                        Text(ctaTitle)
+        FadingFooter(fadeHeight: 200) {
+            VStack(spacing: SobrSpacing.xs) {
+                Button(action: buy) {
+                    Group {
+                        if isPurchasing {
+                            ProgressView().tint(SobrColor.textOnAccent)
+                        } else {
+                            Text(ctaTitle)
+                        }
                     }
+                    .font(SobrFont.headline(.bold))
+                    .foregroundStyle(SobrColor.textOnAccent)
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 18)
+                    .background(SobrGradient.brand)
+                    .clipShape(Capsule())
+                    .shadow(color: SobrColor.accent.opacity(0.35), radius: 18, y: 8)
                 }
-                .font(SobrFont.headline(.bold))
-                .foregroundStyle(SobrColor.textOnAccent)
-                .frame(maxWidth: .infinity)
-                .padding(.vertical, 18)
-                .background(SobrGradient.brand)
-                .clipShape(Capsule())
-                .shadow(color: SobrColor.accent.opacity(0.35), radius: 18, y: 8)
-            }
-            .buttonStyle(PressableButtonStyle())
-            .disabled(isPurchasing)
+                .buttonStyle(PressableButtonStyle())
+                .disabled(isPurchasing)
 
-            Text("Secured by the App Store · \(store.displayPrice(for: selectedPlan)) \(selectedPlan.periodLabel)")
-                .font(SobrFont.caption(.medium))
-                .foregroundStyle(SobrColor.textTertiary)
+                Text("Secured by the App Store · \(store.displayPrice(for: selectedPlan)) \(selectedPlan.periodLabel)")
+                    .font(SobrFont.caption(.medium))
+                    .foregroundStyle(SobrColor.textTertiary)
+            }
+            .padding(.top, SobrSpacing.md)
         }
-        .padding(.horizontal, SobrSpacing.screenMargin)
-        .padding(.top, SobrSpacing.md)
-        .padding(.bottom, SobrSpacing.sm)
-        .background(
-            LinearGradient(colors: [.clear, SobrColor.background, SobrColor.background],
-                           startPoint: .top, endPoint: .bottom)
-                .frame(height: 200).allowsHitTesting(false),
-            alignment: .bottom
-        )
     }
 
     private var ctaTitle: String {

@@ -47,21 +47,15 @@ struct AnalysisView: View {
                         .foregroundStyle(SobrColor.textTertiary)
                         .multilineTextAlignment(.center)
 
-                    Color.clear.frame(height: 96)
+                    Color.clear.frame(height: SobrSpacing.scrollFooterClearance)
                 }
                 .padding(.horizontal, SobrSpacing.screenMargin)
                 .padding(.top, SobrSpacing.xs)
             }
 
-            PrimaryButton(title: "Check your symptoms") { vm.advance() }
-                .padding(.horizontal, SobrSpacing.screenMargin)
-                .padding(.bottom, SobrSpacing.sm)
-                .background(
-                    LinearGradient(colors: [.clear, SobrColor.background],
-                                   startPoint: .top, endPoint: .bottom)
-                        .frame(height: 140).allowsHitTesting(false),
-                    alignment: .bottom
-                )
+            FadingFooter {
+                PrimaryButton(title: "Check your symptoms") { vm.advance() }
+            }
         }
         .onAppear {
             withAnimation(.easeOut(duration: 0.9).delay(0.2)) { animate = true }

@@ -35,32 +35,20 @@ struct GoalsView: View {
                         }
                     }
 
-                    Color.clear.frame(height: 96)
+                    Color.clear.frame(height: SobrSpacing.scrollFooterClearance)
                 }
                 .padding(.horizontal, SobrSpacing.screenMargin)
                 .padding(.top, SobrSpacing.xs)
             }
 
-            PrimaryButton(title: "Track these goals",
-                          isEnabled: !vm.selectedGoalIDs.isEmpty) { vm.advance() }
-                .padding(.horizontal, SobrSpacing.screenMargin)
-                .padding(.bottom, SobrSpacing.sm)
-                .background(
-                    LinearGradient(colors: [.clear, SobrColor.background],
-                                   startPoint: .top, endPoint: .bottom)
-                        .frame(height: 140).allowsHitTesting(false),
-                    alignment: .bottom
-                )
+            FadingFooter {
+                PrimaryButton(title: "Track these goals",
+                              isEnabled: !vm.selectedGoalIDs.isEmpty) { vm.advance() }
+            }
         }
     }
 
     private func toggle(_ id: String) {
-        withAnimation(.spring(response: 0.3)) {
-            if vm.selectedGoalIDs.contains(id) {
-                vm.selectedGoalIDs.remove(id)
-            } else {
-                vm.selectedGoalIDs.insert(id)
-            }
-        }
+        withAnimation(.spring(response: 0.3)) { vm.selectedGoalIDs.toggle(id) }
     }
 }

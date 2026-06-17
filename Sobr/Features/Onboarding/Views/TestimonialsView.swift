@@ -28,21 +28,15 @@ struct TestimonialsView: View {
                         TestimonialCard(testimonial: testimonial)
                     }
 
-                    Color.clear.frame(height: 96)
+                    Color.clear.frame(height: SobrSpacing.scrollFooterClearance)
                 }
                 .padding(.horizontal, SobrSpacing.screenMargin)
                 .padding(.top, SobrSpacing.xs)
             }
 
-            PrimaryButton(title: "Continue") { vm.advance() }
-                .padding(.horizontal, SobrSpacing.screenMargin)
-                .padding(.bottom, SobrSpacing.sm)
-                .background(
-                    LinearGradient(colors: [.clear, SobrColor.background],
-                                   startPoint: .top, endPoint: .bottom)
-                        .frame(height: 140).allowsHitTesting(false),
-                    alignment: .bottom
-                )
+            FadingFooter {
+                PrimaryButton(title: "Continue") { vm.advance() }
+            }
         }
     }
 }
@@ -60,13 +54,7 @@ private struct TestimonialCard: View {
                     .font(.system(size: 14))
                     .foregroundStyle(SobrColor.accent)
                 Spacer()
-                HStack(spacing: 2) {
-                    ForEach(0..<5, id: \.self) { _ in
-                        Image(systemName: "star.fill")
-                            .font(.system(size: 10))
-                            .foregroundStyle(SobrColor.caution)
-                    }
-                }
+                StarRow(size: 10)
             }
 
             Text("\u{201C}\(testimonial.quote)\u{201D}")
