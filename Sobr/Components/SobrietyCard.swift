@@ -54,8 +54,10 @@ struct SobrietyCard: View {
                         .font(SobrFont.footnote(.bold))
                         .tracking(1)
                         .foregroundStyle(.white.opacity(0.9))
+                        .lineLimit(1)
+                        .truncationMode(.tail)
                 }
-                Spacer()
+                Spacer(minLength: SobrSpacing.sm)
                 VStack(alignment: .trailing, spacing: 2) {
                     Text("SOBER SINCE")
                         .font(SobrFont.caption(.bold))

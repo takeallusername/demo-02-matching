@@ -81,8 +81,12 @@ struct PaywallView: View {
             defer { isPurchasing = false }
             do {
                 let success = try await store.purchase(selectedPlan)
-                if success { appState.completePurchase(plan: selectedPlan) }
+                if success {
+                    HapticsManager.shared.success()
+                    appState.completePurchase(plan: selectedPlan)
+                }
             } catch {
+                HapticsManager.shared.warning()
                 errorMessage = error.localizedDescription
             }
         }
@@ -206,6 +210,7 @@ struct PaywallView: View {
                     subtitle: subtitle(for: plan),
                     isSelected: selectedPlan == plan
                 ) {
+                    HapticsManager.shared.selection()
                     withAnimation(.spring(response: 0.3)) { selectedPlan = plan }
                 }
             }
@@ -297,17 +302,21 @@ private struct PlanRow: View {
                     HStack(spacing: SobrSpacing.xs) {
                         Text(title).font(SobrFont.body(.bold))
                             .foregroundStyle(SobrColor.textPrimary)
+                            .lineLimit(1)
                         if percentOff > 0 {
                             Text("\(percentOff)% OFF")
                                 .font(SobrFont.caption(.bold))
                                 .foregroundStyle(SobrColor.textOnAccent)
                                 .padding(.horizontal, 7).padding(.vertical, 3)
                                 .background(SobrGradient.brand, in: Capsule())
+                                .fixedSize()
                         }
                     }
                     Text(subtitle)
                         .font(SobrFont.footnote())
                         .foregroundStyle(SobrColor.textSecondary)
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.85)
                 }
 
                 Spacer()
@@ -316,13 +325,17 @@ private struct PlanRow: View {
                     Text(priceText)
                         .font(SobrFont.body(.bold))
                         .foregroundStyle(SobrColor.textPrimary)
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.8)
                     if percentOff > 0 {
                         Text(anchorText)
                             .font(SobrFont.footnote())
                             .strikethrough()
                             .foregroundStyle(SobrColor.textTertiary)
+                            .lineLimit(1)
                     }
                 }
+                .layoutPriority(1)
             }
             .padding(SobrSpacing.md)
             .background(SobrColor.surface, in: RoundedRectangle(cornerRadius: SobrRadius.lg))

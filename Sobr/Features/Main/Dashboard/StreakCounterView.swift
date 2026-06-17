@@ -20,6 +20,8 @@ struct StreakCounterView: View {
                         .font(SobrFont.counter(.heavy))
                         .foregroundStyle(SobrColor.textPrimary)
                         .contentTransition(.numericText())
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.5)
                     Text(elapsed.days == 1 ? "day" : "days")
                         .font(SobrFont.title(.semibold))
                         .foregroundStyle(SobrColor.textSecondary)

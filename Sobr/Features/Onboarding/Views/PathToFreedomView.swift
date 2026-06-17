@@ -2,7 +2,8 @@ import SwiftUI
 
 /// "Your path to freedom" — a simple two-line chart contrasting a steady upward
 /// recovery curve (with Sobr) against a declining one (without), plus a social
-/// proof figure. The chart is drawn with `Path` for full visual control.
+/// proof line. Scrolls with a pinned CTA so it never overflows; the chart is
+/// drawn in normalised coordinates so it can never exceed its frame.
 struct PathToFreedomView: View {
     @Environment(OnboardingViewModel.self) private var vm
     @State private var animate = false
@@ -12,45 +13,58 @@ struct PathToFreedomView: View {
     private let withoutSobr: [CGFloat] = [0.32, 0.40, 0.30, 0.34, 0.26, 0.30, 0.22, 0.16]
 
     var body: some View {
-        ZStack {
+        ZStack(alignment: .bottom) {
             SobrScreenBackground(tint: SobrColor.recovery, showStars: false)
 
-            VStack(spacing: SobrSpacing.lg) {
-                BackBar { vm.back() }
+            ScrollView(showsIndicators: false) {
+                VStack(spacing: SobrSpacing.lg) {
+                    BackBar { vm.back() }
 
-                VStack(spacing: SobrSpacing.xs) {
-                    Text("Your path to freedom")
-                        .font(SobrFont.title(.heavy))
-                        .foregroundStyle(SobrColor.textPrimary)
-                    Text("With Sobr, recovery compounds.")
-                        .font(SobrFont.body())
-                        .foregroundStyle(SobrColor.textSecondary)
+                    VStack(spacing: SobrSpacing.xs) {
+                        Text("Your path to freedom")
+                            .font(SobrFont.title(.heavy))
+                            .foregroundStyle(SobrColor.textPrimary)
+                            .minimumScaleFactor(0.7)
+                            .lineLimit(1)
+                        Text("With Sobr, recovery compounds.")
+                            .font(SobrFont.body())
+                            .foregroundStyle(SobrColor.textSecondary)
+                    }
+
+                    chart
+                        .frame(height: 200)
+                        .padding(SobrSpacing.md)
+                        .background(SobrColor.surface, in: RoundedRectangle(cornerRadius: SobrRadius.lg))
+
+                    legend
+
+                    VStack(spacing: 4) {
+                        Text("Recovery is the rule, not the exception.")
+                            .font(SobrFont.callout(.semibold))
+                            .foregroundStyle(SobrColor.textPrimary)
+                            .multilineTextAlignment(.center)
+                        Text("Most people who set out to cut down improve over time.")
+                            .font(SobrFont.footnote())
+                            .foregroundStyle(SobrColor.textSecondary)
+                            .multilineTextAlignment(.center)
+                            .fixedSize(horizontal: false, vertical: true)
+                    }
+
+                    Color.clear.frame(height: 96)
                 }
-
-                chart
-                    .frame(height: 220)
-                    .padding(.vertical, SobrSpacing.md)
-
-                legend
-
-                VStack(spacing: 2) {
-                    Text("Recovery is the rule, not the exception.")
-                        .font(SobrFont.callout(.semibold))
-                        .foregroundStyle(SobrColor.textPrimary)
-                    Text("Most people who set out to cut down improve over time.")
-                        .font(SobrFont.footnote())
-                        .foregroundStyle(SobrColor.textSecondary)
-                        .multilineTextAlignment(.center)
-                }
+                .padding(.horizontal, SobrSpacing.screenMargin)
                 .padding(.top, SobrSpacing.xs)
-
-                Spacer()
-
-                PrimaryButton(title: "Continue",
-                              gradient: SobrGradient.recovery) { vm.advance() }
-                    .padding(.bottom, SobrSpacing.sm)
             }
-            .padding(.horizontal, SobrSpacing.screenMargin)
+
+            PrimaryButton(title: "Continue", gradient: SobrGradient.recovery) { vm.advance() }
+                .padding(.horizontal, SobrSpacing.screenMargin)
+                .padding(.bottom, SobrSpacing.sm)
+                .background(
+                    LinearGradient(colors: [.clear, SobrColor.background],
+                                   startPoint: .top, endPoint: .bottom)
+                        .frame(height: 140).allowsHitTesting(false),
+                    alignment: .bottom
+                )
         }
         .onAppear {
             withAnimation(.easeInOut(duration: 1.1).delay(0.2)) { animate = true }
@@ -74,19 +88,20 @@ struct PathToFreedomView: View {
         }
     }
 
-    /// Builds a smooth-ish polyline through the normalised points.
+    /// Builds a polyline through the normalised points, inset slightly so the
+    /// stroke width never clips at the top/bottom edges.
     private func curve(points: [CGFloat], in size: CGSize) -> Path {
         Path { path in
             guard points.count > 1 else { return }
+            let inset: CGFloat = 6
+            let usableHeight = max(0, size.height - inset * 2)
             let stepX = size.width / CGFloat(points.count - 1)
             func point(_ i: Int) -> CGPoint {
                 CGPoint(x: CGFloat(i) * stepX,
-                        y: size.height * (1 - points[i]))
+                        y: inset + usableHeight * (1 - points[i]))
             }
             path.move(to: point(0))
-            for i in 1..<points.count {
-                path.addLine(to: point(i))
-            }
+            for i in 1..<points.count { path.addLine(to: point(i)) }
         }
     }
 

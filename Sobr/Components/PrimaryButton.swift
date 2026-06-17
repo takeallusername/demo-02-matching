@@ -11,7 +11,10 @@ struct PrimaryButton: View {
     let action: () -> Void
 
     var body: some View {
-        Button(action: action) {
+        Button {
+            HapticsManager.shared.softTap(intensity: 0.8)
+            action()
+        } label: {
             HStack(spacing: SobrSpacing.xs) {
                 Text(title)
                 if let icon {
@@ -41,7 +44,10 @@ struct TextLinkButton: View {
     let action: () -> Void
 
     var body: some View {
-        Button(action: action) {
+        Button {
+            HapticsManager.shared.lightTap()
+            action()
+        } label: {
             Text(title)
                 .font(SobrFont.callout(.semibold))
                 .foregroundStyle(color)

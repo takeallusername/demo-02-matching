@@ -19,6 +19,8 @@ struct WelcomeView: View {
                 Text("Welcome")
                     .font(SobrFont.largeTitle(.heavy))
                     .foregroundStyle(SobrColor.textPrimary)
+                    .minimumScaleFactor(0.8)
+                    .lineLimit(1)
 
                 Text("Let's start by finding out where alcohol really sits in your life.")
                     .font(SobrFont.headline(.regular))

@@ -118,7 +118,9 @@ struct UrgeSupportView: View {
         switch step {
         case .breathe: withAnimation { step = .ride }
         case .ride:    withAnimation { step = .reasons }
-        case .reasons: withAnimation { step = .done }
+        case .reasons:
+            withAnimation { step = .done }
+            HapticsManager.shared.success()
         case .done:    dismiss()
         }
     }

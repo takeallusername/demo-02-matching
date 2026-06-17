@@ -38,6 +38,7 @@ struct DailyPledgeCard: View {
                     .padding(.top, SobrSpacing.xxs)
             } else {
                 Button {
+                    HapticsManager.shared.success()
                     withAnimation(.spring(response: 0.3)) { lastPledgeDay = todayKey }
                 } label: {
                     Text("I pledge")

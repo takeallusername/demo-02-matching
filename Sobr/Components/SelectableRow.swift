@@ -11,7 +11,10 @@ struct SelectableRow: View {
     let action: () -> Void
 
     var body: some View {
-        Button(action: action) {
+        Button {
+            HapticsManager.shared.selection()
+            action()
+        } label: {
             HStack(spacing: SobrSpacing.md) {
                 if let icon {
                     Image(systemName: icon)

@@ -37,6 +37,8 @@ struct EducationCarouselView: View {
                         .font(SobrFont.hero())
                         .foregroundStyle(SobrColor.textPrimary)
                         .multilineTextAlignment(.center)
+                        .minimumScaleFactor(0.8)
+                        .lineLimit(2)
 
                     Text(current.body)
                         .font(SobrFont.body())

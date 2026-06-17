@@ -9,7 +9,10 @@ struct OptionCard: View {
     let action: () -> Void
 
     var body: some View {
-        Button(action: action) {
+        Button {
+            HapticsManager.shared.selection()
+            action()
+        } label: {
             HStack(spacing: SobrSpacing.md) {
                 Text("\(index)")
                     .font(SobrFont.callout(.bold))

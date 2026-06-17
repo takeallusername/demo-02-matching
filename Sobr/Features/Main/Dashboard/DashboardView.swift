@@ -51,6 +51,8 @@ struct DashboardView: View {
                 Text(name.isEmpty ? "Welcome back" : "Hi, \(name)")
                     .font(SobrFont.title(.heavy))
                     .foregroundStyle(SobrColor.textPrimary)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.7)
                 Text("One day at a time.")
                     .font(SobrFont.callout())
                     .foregroundStyle(SobrColor.textSecondary)
