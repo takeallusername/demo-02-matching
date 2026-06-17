@@ -42,7 +42,17 @@ Every discount is computed against a **full year of monthly billing**
 - Try to leave without buying → **Lifetime $49.99** (exit offer)
 - Still not converted a **day later** → **Lifetime $11.99** (final offer)
 
-Billing is **simulated** here (no StoreKit yet); converting just unlocks the app.
+### In-app purchases (StoreKit 2)
+
+Purchases run through **StoreKit 2** (`StoreService`): product loading,
+verified `purchase()`, a `Transaction.updates` listener, entitlement checks and
+**Restore purchases**. Prices and the "% off" badges come from the live products
+when loaded, with a static fallback.
+
+A `Sobr/Resources/Sobr.storekit` config is bundled and wired into the scheme, so
+the **full purchase flow runs in the simulator** with no App Store Connect setup.
+For production, create the matching products (see `SubscriptionPlan.productID`)
+in App Store Connect and add the In-App Purchase capability.
 
 **Main app** (4 tabs, no AI, no community — by design)
 - **Home** — a live sobriety counter, a growth metaphor (seed → tree), an

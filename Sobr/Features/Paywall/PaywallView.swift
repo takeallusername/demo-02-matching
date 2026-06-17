@@ -1,6 +1,8 @@
 import SwiftUI
+import StoreKit
 
-/// The hard paywall — the only door into the app.
+/// The hard paywall — the only door into the app, backed by real StoreKit 2
+/// purchases.
 ///
 /// It reads its stage from `AppState.pendingCheckout`, so:
 /// - **standard:** monthly / yearly / lifetime ($59.99)
@@ -8,12 +10,16 @@ import SwiftUI
 ///   to leave
 /// - **finalOffer:** the best lifetime ($11.99), unlocked a day later
 ///
-/// Every price shows how much it saves versus paying monthly. There is no free
-/// exit; the close button only ever reveals a better deal.
+/// Prices and the "% off vs monthly" badges come from the live products when
+/// loaded (with a static fallback). There is no free exit; the close button only
+/// ever reveals a better deal.
 struct PaywallView: View {
     @Environment(AppState.self) private var appState
+    @Environment(StoreService.self) private var store
 
     @State private var selectedPlan: SubscriptionPlan = .yearly
+    @State private var isPurchasing = false
+    @State private var errorMessage: String?
 
     private var checkout: PendingCheckout? { appState.pendingCheckout }
     private var stage: PaywallStage { checkout?.stage ?? .standard }
@@ -39,8 +45,9 @@ struct PaywallView: View {
                     if stage != .standard { offerBanner }
                     benefitCloud
                     planList
+                    restoreButton
                     reassurance
-                    Color.clear.frame(height: 150)
+                    Color.clear.frame(height: 160)
                 }
                 .padding(.horizontal, SobrSpacing.screenMargin)
                 .padding(.top, SobrSpacing.xs)
@@ -48,10 +55,50 @@ struct PaywallView: View {
 
             footer
         }
-        .onAppear { selectedPlan = stage.lifetimePlan == .lifetime ? .yearly : stage.lifetimePlan }
+        .onAppear { selectedPlan = defaultPlan(for: stage) }
         .onChange(of: stage) { _, newStage in
-            withAnimation(.spring(response: 0.4)) {
-                selectedPlan = newStage.lifetimePlan
+            withAnimation(.spring(response: 0.4)) { selectedPlan = defaultPlan(for: newStage) }
+        }
+        .alert("Something went wrong",
+               isPresented: Binding(get: { errorMessage != nil },
+                                    set: { if !$0 { errorMessage = nil } })) {
+            Button("OK", role: .cancel) { errorMessage = nil }
+        } message: {
+            Text(errorMessage ?? "")
+        }
+    }
+
+    private func defaultPlan(for stage: PaywallStage) -> SubscriptionPlan {
+        stage == .standard ? .yearly : stage.lifetimePlan
+    }
+
+    // MARK: - Actions
+
+    private func buy() {
+        guard !isPurchasing else { return }
+        isPurchasing = true
+        Task {
+            defer { isPurchasing = false }
+            do {
+                let success = try await store.purchase(selectedPlan)
+                if success { appState.completePurchase(plan: selectedPlan) }
+            } catch {
+                errorMessage = error.localizedDescription
+            }
+        }
+    }
+
+    private func restore() {
+        Task {
+            do {
+                try await store.restore()
+                if store.hasEntitlement {
+                    appState.unlockFromEntitlement()
+                } else {
+                    errorMessage = "No previous purchases were found on this Apple ID."
+                }
+            } catch {
+                errorMessage = error.localizedDescription
             }
         }
     }
@@ -81,8 +128,7 @@ struct PaywallView: View {
                 .font(.system(size: 34))
                 .foregroundStyle(SobrColor.accent)
 
-            Text(name.isEmpty ? "Your plan is ready"
-                              : "\(name), your plan is ready")
+            Text(name.isEmpty ? "Your plan is ready" : "\(name), your plan is ready")
                 .font(SobrFont.title(.heavy))
                 .foregroundStyle(SobrColor.textPrimary)
                 .multilineTextAlignment(.center)
@@ -106,18 +152,19 @@ struct PaywallView: View {
     /// The urgency banner for downsell stages.
     private var offerBanner: some View {
         let plan = stage.lifetimePlan
+        let percent = store.percentOffVsMonthly(plan)
         return HStack(spacing: SobrSpacing.sm) {
             Image(systemName: stage == .finalOffer ? "gift.fill" : "bolt.fill")
                 .foregroundStyle(.white)
             VStack(alignment: .leading, spacing: 2) {
                 Text(stage == .finalOffer ? "Your final offer" : "Wait — special offer")
                     .font(SobrFont.callout(.bold))
-                Text("Lifetime access, \(plan.percentOffVsMonthly)% off vs monthly")
+                Text("Lifetime access, \(percent)% off vs monthly")
                     .font(SobrFont.footnote())
                     .foregroundStyle(.white.opacity(0.9))
             }
             Spacer()
-            Text("\(plan.percentOffVsMonthly)%")
+            Text("\(percent)%")
                 .font(SobrFont.title(.heavy))
                 .foregroundStyle(.white)
         }
@@ -151,11 +198,33 @@ struct PaywallView: View {
     private var planList: some View {
         VStack(spacing: SobrSpacing.sm) {
             ForEach(plans) { plan in
-                PlanRow(plan: plan, isSelected: selectedPlan == plan) {
+                PlanRow(
+                    title: plan.title,
+                    priceText: store.displayPrice(for: plan),
+                    anchorText: store.anchorText(),
+                    percentOff: store.percentOffVsMonthly(plan),
+                    subtitle: subtitle(for: plan),
+                    isSelected: selectedPlan == plan
+                ) {
                     withAnimation(.spring(response: 0.3)) { selectedPlan = plan }
                 }
             }
         }
+    }
+
+    private func subtitle(for plan: SubscriptionPlan) -> String {
+        switch plan {
+        case .monthly:
+            return "Billed monthly · our baseline price"
+        case .yearly:
+            return "Just \(store.effectiveMonthlyText(for: plan))/mo · billed yearly"
+        case .lifetime, .exitLifetime, .finalLifetime:
+            return "Pay once · yours forever"
+        }
+    }
+
+    private var restoreButton: some View {
+        TextLinkButton(title: "Restore purchases") { restore() }
     }
 
     private var reassurance: some View {
@@ -166,10 +235,26 @@ struct PaywallView: View {
 
     private var footer: some View {
         VStack(spacing: SobrSpacing.xs) {
-            PrimaryButton(title: ctaTitle) {
-                appState.completePurchase(plan: selectedPlan)
+            Button(action: buy) {
+                Group {
+                    if isPurchasing {
+                        ProgressView().tint(SobrColor.textOnAccent)
+                    } else {
+                        Text(ctaTitle)
+                    }
+                }
+                .font(SobrFont.headline(.bold))
+                .foregroundStyle(SobrColor.textOnAccent)
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 18)
+                .background(SobrGradient.brand)
+                .clipShape(Capsule())
+                .shadow(color: SobrColor.accent.opacity(0.35), radius: 18, y: 8)
             }
-            Text("Secured payment · \(selectedPlan.priceText) \(selectedPlan.periodLabel)")
+            .buttonStyle(PressableButtonStyle())
+            .disabled(isPurchasing)
+
+            Text("Secured by the App Store · \(store.displayPrice(for: selectedPlan)) \(selectedPlan.periodLabel)")
                 .font(SobrFont.caption(.medium))
                 .foregroundStyle(SobrColor.textTertiary)
         }
@@ -190,9 +275,14 @@ struct PaywallView: View {
 }
 
 /// A single selectable plan row showing price, the "% off vs monthly" badge and
-/// — for yearly — the effective monthly cost.
+/// a short value subtitle. Purely presentational — all strings are resolved by
+/// the parent so the row stays dumb.
 private struct PlanRow: View {
-    let plan: SubscriptionPlan
+    let title: String
+    let priceText: String
+    let anchorText: String
+    let percentOff: Int
+    let subtitle: String
     let isSelected: Bool
     let action: () -> Void
 
@@ -205,10 +295,10 @@ private struct PlanRow: View {
 
                 VStack(alignment: .leading, spacing: 3) {
                     HStack(spacing: SobrSpacing.xs) {
-                        Text(plan.title).font(SobrFont.body(.bold))
+                        Text(title).font(SobrFont.body(.bold))
                             .foregroundStyle(SobrColor.textPrimary)
-                        if plan.percentOffVsMonthly > 0 {
-                            Text("\(plan.percentOffVsMonthly)% OFF")
+                        if percentOff > 0 {
+                            Text("\(percentOff)% OFF")
                                 .font(SobrFont.caption(.bold))
                                 .foregroundStyle(SobrColor.textOnAccent)
                                 .padding(.horizontal, 7).padding(.vertical, 3)
@@ -223,11 +313,11 @@ private struct PlanRow: View {
                 Spacer()
 
                 VStack(alignment: .trailing, spacing: 2) {
-                    Text(plan.priceText)
+                    Text(priceText)
                         .font(SobrFont.body(.bold))
                         .foregroundStyle(SobrColor.textPrimary)
-                    if plan.percentOffVsMonthly > 0 {
-                        Text(plan.anchorText)
+                    if percentOff > 0 {
+                        Text(anchorText)
                             .font(SobrFont.footnote())
                             .strikethrough()
                             .foregroundStyle(SobrColor.textTertiary)
@@ -243,17 +333,5 @@ private struct PlanRow: View {
             }
         }
         .buttonStyle(PressableButtonStyle())
-    }
-
-    /// A short value line per plan.
-    private var subtitle: String {
-        switch plan {
-        case .monthly:
-            return "Billed monthly · our baseline price"
-        case .yearly:
-            return "Just \(plan.effectiveMonthlyText)/mo · billed yearly"
-        case .lifetime, .exitLifetime, .finalLifetime:
-            return "Pay once · yours forever"
-        }
     }
 }

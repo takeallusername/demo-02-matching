@@ -52,7 +52,8 @@ final class AppState {
         store.save(checkout)
     }
 
-    /// A successful (simulated) purchase: promote the draft to the live profile.
+    /// A verified purchase: promote the onboarding draft to the live profile and
+    /// clear the pending checkout.
     func completePurchase(plan: SubscriptionPlan) {
         guard var draft = pendingCheckout?.draft else { return }
         draft.isPremium = true
@@ -60,6 +61,20 @@ final class AppState {
         store.save(draft)
         pendingCheckout = nil
         store.clearPendingCheckout()
+    }
+
+    /// Unlock from an existing entitlement (e.g. a restore after reinstall). Uses
+    /// the pending draft if present, otherwise creates a minimal premium profile
+    /// so a returning paid user is never locked out.
+    func unlockFromEntitlement() {
+        if pendingCheckout?.draft != nil {
+            completePurchase(plan: .lifetime)
+        } else if profile == nil {
+            var profile = UserProfile.makeEmpty()
+            profile.isPremium = true
+            self.profile = profile
+            store.save(profile)
+        }
     }
 
     /// If a day has passed since the paywall was first reached and the user

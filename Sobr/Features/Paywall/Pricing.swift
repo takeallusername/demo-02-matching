@@ -14,6 +14,27 @@ enum SubscriptionPlan: String, Identifiable, CaseIterable {
 
     var id: String { rawValue }
 
+    /// The App Store product identifier. Subscriptions (`monthly`, `yearly`)
+    /// live in one subscription group; the lifetime tiers are separate
+    /// non-consumables (one SKU per downsell price). These IDs match both the
+    /// bundled `Sobr.storekit` test config and what you'd create in App Store
+    /// Connect for production.
+    var productID: String {
+        switch self {
+        case .monthly:       return "com.sobr.app.monthly"
+        case .yearly:        return "com.sobr.app.yearly"
+        case .lifetime:      return "com.sobr.app.lifetime"
+        case .exitLifetime:  return "com.sobr.app.lifetime.exit"
+        case .finalLifetime: return "com.sobr.app.lifetime.final"
+        }
+    }
+
+    /// Resolve a plan from a product identifier (e.g. from a StoreKit
+    /// transaction).
+    static func plan(forProductID id: String) -> SubscriptionPlan? {
+        allCases.first { $0.productID == id }
+    }
+
     var price: Double {
         switch self {
         case .monthly:       return 12.99
